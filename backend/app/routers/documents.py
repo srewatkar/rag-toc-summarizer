@@ -2,8 +2,10 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
+from typing import List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel
 from app.auth import get_current_user  # noqa: F401 — kept so tests can patch this name
 from app.db import get_client
 
@@ -11,6 +13,33 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 _security = HTTPBearer(auto_error=False)
+
+
+class DocumentSummary(BaseModel):
+    id: str
+    title: str
+    status: str
+    source_type: str
+    created_at: str
+
+
+class SummaryDetail(BaseModel):
+    overview: str
+    key_points: List[str]
+    red_flags: List[str]
+    watch_out: List[str]
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+    created_at: str
+
+
+class DocumentDetail(BaseModel):
+    document: dict
+    summary: Optional[Any]
+    messages: List[dict]
 
 
 async def _current_user_dep(
@@ -21,8 +50,20 @@ async def _current_user_dep(
     return await fn(credentials=credentials)
 
 
-@router.get("/documents")
+@router.get(
+    "/documents",
+    response_model=List[DocumentSummary],
+    summary="List documents",
+    responses={
+        200: {"description": "List of documents, newest first"},
+    },
+)
 async def list_documents(current_user: dict = Depends(_current_user_dep)):
+    """
+    Returns all documents belonging to the authenticated user, ordered newest first.
+
+    `status` is one of: `processing` | `ready` | `error`
+    """
     client = get_client()
     result = await asyncio.to_thread(
         client.table("documents")
@@ -34,8 +75,24 @@ async def list_documents(current_user: dict = Depends(_current_user_dep)):
     return result.data
 
 
-@router.get("/documents/{document_id}")
+@router.get(
+    "/documents/{document_id}",
+    response_model=DocumentDetail,
+    summary="Get document with summary and chat history",
+    responses={
+        200: {"description": "Document data, AI summary, and chat messages"},
+        404: {"description": "Document not found or does not belong to this user"},
+    },
+)
 async def get_document(document_id: str, current_user: dict = Depends(_current_user_dep)):
+    """
+    Returns a document with its AI-generated summary and full chat history.
+
+    - `summary` is `null` while the document is still `processing` or if it errored.
+    - `messages` is the full question/answer history for this document.
+
+    Poll this endpoint every 2 seconds after upload until `document.status` = `ready`.
+    """
     client = get_client()
     doc_result = await asyncio.to_thread(
         client.table("documents")
@@ -66,8 +123,20 @@ async def get_document(document_id: str, current_user: dict = Depends(_current_u
     return {"document": document, "summary": summary, "messages": messages}
 
 
-@router.delete("/documents/{document_id}", status_code=204)
+@router.delete(
+    "/documents/{document_id}",
+    status_code=204,
+    summary="Delete a document",
+    responses={
+        204: {"description": "Document deleted — chunks, summary, and chat history are also removed"},
+        404: {"description": "Document not found or does not belong to this user"},
+    },
+)
 async def delete_document(document_id: str, current_user: dict = Depends(_current_user_dep)):
+    """
+    Permanently deletes a document and all associated data (chunks, summary, chat messages)
+    via cascading foreign key deletes.
+    """
     client = get_client()
     doc_result = await asyncio.to_thread(
         client.table("documents")

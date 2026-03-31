@@ -230,103 +230,34 @@ pytest
 
 ## API reference
 
+The backend serves interactive API docs automatically:
+
+| URL | Description |
+|-----|-------------|
+| `http://localhost:8000/docs` | Swagger UI — interactive, try endpoints directly in browser |
+| `http://localhost:8000/redoc` | ReDoc — clean read-only reference |
+
+Click **Authorize** in Swagger UI and enter your Supabase access token (`Bearer <token>`) to test authenticated endpoints.
+
 ### Authentication
 
-All endpoints (except `/health`) require a Supabase JWT passed as:
+All endpoints except `/health` require a Supabase JWT:
 ```
 Authorization: Bearer <access_token>
 ```
 
-### Endpoints
+### Endpoints at a glance
 
-#### `GET /health`
-Returns `{"status": "ok"}`. No auth required.
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Health check — no auth required |
+| `POST` | `/upload` | Upload a document (text / URL / PDF / DOCX) |
+| `GET` | `/documents` | List all your documents |
+| `GET` | `/documents/{id}` | Get document + summary + chat history |
+| `DELETE` | `/documents/{id}` | Delete a document and all its data |
+| `POST` | `/chat` | Ask a question about a document |
 
-#### `POST /upload`
-Upload a document for processing. Returns immediately with a document ID; processing happens in the background.
-
-**Content-Type:** `multipart/form-data`
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `source_type` | string | `"text"`, `"url"`, `"pdf"`, or `"docx"` |
-| `content` | string | Required when `source_type=text` |
-| `url` | string | Required when `source_type=url` |
-| `file` | file | Required when `source_type=pdf` or `docx` (max 10MB) |
-
-**Response `202`:**
-```json
-{ "document_id": "uuid" }
-```
-
-**Errors:**
-- `400` — missing or invalid input
-- `413` — file exceeds 10MB
-- `429` — daily upload limit reached (5/day)
-
-#### `GET /documents`
-List all documents for the authenticated user, ordered newest first.
-
-**Response `200`:**
-```json
-[
-  {
-    "id": "uuid",
-    "title": "Terms of Service",
-    "status": "ready",
-    "source_type": "url",
-    "created_at": "2026-03-30T10:00:00Z"
-  }
-]
-```
-
-Status values: `processing` | `ready` | `error`
-
-#### `GET /documents/{id}`
-Get a document with its summary and chat history.
-
-**Response `200`:**
-```json
-{
-  "document": {
-    "id": "uuid",
-    "title": "Terms of Service",
-    "status": "ready",
-    "source_type": "url",
-    "created_at": "2026-03-30T10:00:00Z"
-  },
-  "summary": {
-    "overview": "This is a subscription service agreement...",
-    "key_points": ["Monthly billing", "Data shared with partners"],
-    "red_flags": ["Automatic renewal without notification"],
-    "watch_out": ["30-day cancellation notice required"]
-  },
-  "messages": [
-    { "role": "user", "content": "Can I cancel?", "created_at": "..." },
-    { "role": "assistant", "content": "Yes, with 30 days notice.", "created_at": "..." }
-  ]
-}
-```
-
-`summary` is `null` when status is `processing` or `error`.
-
-#### `DELETE /documents/{id}`
-Delete a document and all its chunks, summary, and chat messages (cascades via foreign keys).
-
-**Response `204`:** No content.
-
-#### `POST /chat`
-Ask a question about a document.
-
-**Request:**
-```json
-{ "document_id": "uuid", "question": "Can I cancel anytime?" }
-```
-
-**Response `200`:**
-```json
-{ "answer": "Yes, you can cancel at any time, but no refund is issued for partial months." }
-```
+See `/docs` for full request/response schemas, field descriptions, and an interactive test console.
 
 ---
 
