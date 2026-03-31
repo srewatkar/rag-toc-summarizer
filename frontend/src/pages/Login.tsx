@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function Login() {
@@ -8,13 +8,21 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const successMessage = (location.state as any)?.message
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError(error.message); setLoading(false) }
+    if (error) {
+      const msg = error.message.toLowerCase().includes('not confirmed')
+        ? 'Please verify your email before signing in. Check your inbox for the confirmation link.'
+        : error.message
+      setError(msg)
+      setLoading(false)
+    }
     else navigate('/')
   }
 
@@ -22,6 +30,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-xl shadow p-8">
         <h1 className="text-2xl font-bold mb-6">Sign in</h1>
+        {successMessage && <p className="text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm mb-4">{successMessage}</p>}
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}
@@ -33,7 +42,10 @@ export default function Login() {
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
-        <p className="mt-4 text-sm text-gray-600">No account? <Link to="/signup" className="text-indigo-600 hover:underline">Sign up</Link></p>
+        <div className="mt-4 flex justify-between text-sm text-gray-600">
+          <span>No account? <Link to="/signup" className="text-indigo-600 hover:underline">Sign up</Link></span>
+          <Link to="/forgot-password" className="text-indigo-600 hover:underline">Forgot password?</Link>
+        </div>
       </div>
     </div>
   )

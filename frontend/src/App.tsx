@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import Document from './pages/Document'
@@ -24,6 +26,8 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
       <Route path="/upload" element={<RequireAuth><Upload /></RequireAuth>} />
       <Route path="/documents/:id" element={<RequireAuth><Document /></RequireAuth>} />
