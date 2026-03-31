@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
@@ -24,11 +25,15 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Routes>
+      {/* Public */}
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
+
+      {/* Authenticated */}
+      <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
       <Route path="/upload" element={<RequireAuth><Upload /></RequireAuth>} />
       <Route path="/documents/:id" element={<RequireAuth><Document /></RequireAuth>} />
     </Routes>

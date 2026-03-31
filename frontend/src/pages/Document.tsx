@@ -30,7 +30,7 @@ export default function Document() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto py-12 px-4">
-        <Link to="/" className="text-indigo-600 text-sm hover:underline mb-6 block">← Back to documents</Link>
+        <Link to="/dashboard" className="text-indigo-600 text-sm hover:underline mb-6 block">← Back to documents</Link>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">{data.document.title}</h1>
         <p className="text-gray-500 text-sm mb-8">{new Date(data.document.created_at).toLocaleDateString()}</p>
 
