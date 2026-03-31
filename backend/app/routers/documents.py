@@ -47,13 +47,13 @@ async def get_document(document_id: str, current_user: dict = Depends(_current_u
         raise HTTPException(status_code=404, detail="Document not found")
     document = doc_result.data[0]
 
-    summary = (await asyncio.to_thread(
+    summary_result = await asyncio.to_thread(
         client.table("summaries")
         .select("*")
         .eq("document_id", document_id)
-        .maybe_single()
         .execute
-    )).data
+    )
+    summary = summary_result.data[0] if summary_result.data else None
 
     messages = (await asyncio.to_thread(
         client.table("chat_messages")

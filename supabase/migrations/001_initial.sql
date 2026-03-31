@@ -91,3 +91,26 @@ create policy "users see own messages" on chat_messages
   for select using (auth.uid() = user_id);
 create policy "users insert own messages" on chat_messages
   for insert with check (auth.uid() = user_id);
+
+-- vector similarity search function used by the chat endpoint
+create or replace function match_document_chunks(
+  query_embedding vector(1536),
+  doc_id uuid,
+  match_count int default 5
+)
+returns table (
+  id uuid,
+  content text,
+  similarity float
+)
+language sql stable
+as $$
+  select
+    id,
+    content,
+    1 - (embedding <=> query_embedding) as similarity
+  from document_chunks
+  where document_id = doc_id
+  order by embedding <=> query_embedding
+  limit match_count;
+$$;

@@ -15,20 +15,26 @@ async function request(path: string, options: RequestInit, token: string) {
 }
 
 export async function uploadText(content: string, token: string) {
+  const form = new FormData()
+  form.append('source_type', 'text')
+  form.append('content', content)
   const res = await fetch(`${getApiUrl()}/upload`, {
     method: 'POST',
-    headers: { Authorization: token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ source_type: 'text', content }),
+    headers: { Authorization: token },
+    body: form,
   })
   if (!res.ok) throw new Error('Upload failed')
   return res.json()
 }
 
 export async function uploadUrl(url: string, token: string) {
+  const form = new FormData()
+  form.append('source_type', 'url')
+  form.append('url', url)
   const res = await fetch(`${getApiUrl()}/upload`, {
     method: 'POST',
-    headers: { Authorization: token, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ source_type: 'url', url }),
+    headers: { Authorization: token },
+    body: form,
   })
   if (!res.ok) throw new Error('Upload failed')
   return res.json()
