@@ -44,13 +44,13 @@ export default function Upload() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Analyze a Document</h1>
         <p className="text-gray-500 mb-8">Upload a terms of service, lease agreement, or any legal document.</p>
         {polling ? (
-          <div className="text-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4" />
+          <div className="text-center py-16" role="status" aria-live="polite">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4" aria-hidden="true" />
             <p className="text-gray-600">Analyzing your document…</p>
           </div>
         ) : (
           <>
-            {error && <p className="text-red-600 mb-4">{error}</p>}
+            {error && <p role="alert" className="text-red-600 mb-4">{error}</p>}
             {token && <UploadForm token={token} onUploaded={handleUploaded} />}
           </>
         )}

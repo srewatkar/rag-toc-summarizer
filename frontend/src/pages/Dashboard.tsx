@@ -46,35 +46,42 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-3xl mx-auto py-12 px-4">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+      <main id="main-content" className="max-w-3xl mx-auto py-8 px-4 sm:py-12">
+        {/* Header — stacks on mobile, side-by-side on sm+ */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
           <div>
-            <p className="text-sm text-gray-400 mb-1">{getGreeting(name)}</p>
-            <h1 className="text-3xl font-bold text-gray-900">Your Documents</h1>
+            <p className="text-sm text-gray-500 mb-1" aria-live="polite">{getGreeting(name)}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Your Documents</h1>
           </div>
-          <div className="flex items-center gap-2 pt-1">
-            <Link to="/upload"
-              className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700">
+          <nav aria-label="Dashboard actions" className="flex items-center gap-2 flex-wrap">
+            <Link
+              to="/upload"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 min-h-[44px] flex items-center"
+            >
               + Upload
             </Link>
-            <Link to="/profile"
-              className="text-sm text-gray-500 hover:text-gray-800 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+            <Link
+              to="/profile"
+              className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px] flex items-center"
+            >
               Profile
             </Link>
-            <button onClick={handleSignOut}
-              className="text-sm text-gray-500 hover:text-gray-800 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="text-sm text-gray-600 hover:text-gray-900 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
+            >
               Sign out
             </button>
-          </div>
+          </nav>
         </div>
 
         {loading ? (
-          <p className="text-gray-400 text-center py-12">Loading…</p>
+          <p className="text-gray-500 text-center py-12" role="status" aria-live="polite">Loading…</p>
         ) : (
           <DocumentHistory docs={docs} onDelete={handleDelete} />
         )}
-      </div>
+      </main>
     </div>
   )
 }

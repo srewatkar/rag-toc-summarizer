@@ -24,9 +24,9 @@ export default function Signup() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow p-8 text-center">
-          <div className="text-4xl mb-4">&#9993;</div>
+          <span aria-hidden="true" className="text-4xl block mb-4">✉️</span>
           <h1 className="text-2xl font-bold mb-2">Check your email</h1>
           <p className="text-gray-600 mb-6">
             We sent a verification link to <strong>{email}</strong>.<br />
@@ -41,21 +41,53 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow p-8">
         <h1 className="text-2xl font-bold mb-6">Create account</h1>
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+
+        {error && <p role="alert" className="text-red-600 text-sm mb-4">{error}</p>}
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
-          <input type="password" placeholder="Password (min 6 chars)" value={password} onChange={e => setPassword(e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required minLength={6} />
-          <button type="submit" disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50">
+          <div>
+            <label htmlFor="signup-email" className="sr-only">Email address</label>
+            <input
+              id="signup-email"
+              type="email"
+              placeholder="Email"
+              autoComplete="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full border rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="signup-password" className="sr-only">Password (minimum 6 characters)</label>
+            <input
+              id="signup-password"
+              type="password"
+              placeholder="Password (min 6 chars)"
+              autoComplete="new-password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full border rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+              minLength={6}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            aria-busy={loading}
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50"
+          >
             {loading ? 'Creating account…' : 'Create account'}
           </button>
         </form>
-        <p className="mt-4 text-sm text-gray-600">Have an account? <Link to="/login" className="text-indigo-600 hover:underline">Sign in</Link></p>
+
+        <p className="mt-4 text-sm text-gray-600">
+          Have an account? <Link to="/login" className="text-indigo-600 hover:underline">Sign in</Link>
+        </p>
       </div>
     </div>
   )
