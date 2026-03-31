@@ -14,42 +14,37 @@ async function request(path: string, options: RequestInit, token: string) {
   return res
 }
 
-export async function uploadText(content: string, token: string) {
-  const form = new FormData()
-  form.append('source_type', 'text')
-  form.append('content', content)
+async function uploadRequest(form: FormData, token: string) {
   const res = await fetch(`${getApiUrl()}/upload`, {
     method: 'POST',
     headers: { Authorization: token },
     body: form,
   })
-  if (!res.ok) throw new Error('Upload failed')
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Upload failed' }))
+    throw Object.assign(new Error(err.detail || 'Upload failed'), { status: res.status })
+  }
   return res.json()
+}
+
+export async function uploadText(content: string, token: string) {
+  const form = new FormData()
+  form.append('source_type', 'text')
+  form.append('content', content)
+  return uploadRequest(form, token)
 }
 
 export async function uploadUrl(url: string, token: string) {
   const form = new FormData()
   form.append('source_type', 'url')
   form.append('url', url)
-  const res = await fetch(`${getApiUrl()}/upload`, {
-    method: 'POST',
-    headers: { Authorization: token },
-    body: form,
-  })
-  if (!res.ok) throw new Error('Upload failed')
-  return res.json()
+  return uploadRequest(form, token)
 }
 
 export async function uploadFile(file: File, token: string) {
   const form = new FormData()
   form.append('file', file)
-  const res = await fetch(`${getApiUrl()}/upload`, {
-    method: 'POST',
-    headers: { Authorization: token },
-    body: form,
-  })
-  if (!res.ok) throw new Error('Upload failed')
-  return res.json()
+  return uploadRequest(form, token)
 }
 
 export async function listDocuments(token: string) {
