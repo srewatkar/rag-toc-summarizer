@@ -48,3 +48,6 @@ app.include_router(documents.router, tags=["Documents"])
 
 from app.routers import chat
 app.include_router(chat.router, tags=["Chat"])
+
+from app.routers import account
+app.include_router(account.router, tags=["Account"])

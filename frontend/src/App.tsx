@@ -7,6 +7,7 @@ import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
+import Profile from './pages/Profile'
 import Upload from './pages/Upload'
 import Document from './pages/Document'
 
@@ -34,6 +35,7 @@ export default function App() {
 
       {/* Authenticated */}
       <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+      <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
       <Route path="/upload" element={<RequireAuth><Upload /></RequireAuth>} />
       <Route path="/documents/:id" element={<RequireAuth><Document /></RequireAuth>} />
     </Routes>

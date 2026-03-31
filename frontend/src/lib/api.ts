@@ -65,6 +65,14 @@ export async function deleteDocument(id: string, token: string) {
   if (!res.ok) throw new Error('Delete failed')
 }
 
+export async function deleteAccount(token: string) {
+  const res = await fetch(`${getApiUrl()}/account`, {
+    method: 'DELETE',
+    headers: { Authorization: token },
+  })
+  if (!res.ok) throw new Error('Failed to delete account')
+}
+
 export async function chat(documentId: string, question: string, token: string) {
   const res = await request('/chat', {
     method: 'POST',
