@@ -5,6 +5,7 @@ import logging
 import sys
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel
 from app.auth import get_current_user  # noqa: F401 — kept so tests can patch this name
 from app.db import get_client
 from app.rate_limit import check_upload_limit
@@ -22,24 +23,49 @@ ALLOWED_MIME_TYPES = {
 _security = HTTPBearer(auto_error=False)
 
 
+class UploadResponse(BaseModel):
+    document_id: str
+
+
 async def _current_user_dep(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(_security),
 ) -> dict:
     """Indirection so tests can patch app.routers.upload.get_current_user."""
-    # Look up get_current_user via the module dict so patches take effect at call time.
     fn = sys.modules[__name__].__dict__["get_current_user"]
     return await fn(credentials=credentials)
 
 
-@router.post("/upload", status_code=202)
+@router.post(
+    "/upload",
+    status_code=202,
+    response_model=UploadResponse,
+    summary="Upload a document",
+    responses={
+        202: {"description": "Document accepted — processing starts in the background"},
+        400: {"description": "Missing or invalid input"},
+        413: {"description": "File exceeds 10 MB limit"},
+        429: {"description": "Daily upload limit reached (5 per day)"},
+    },
+)
 async def upload_document(
     background_tasks: BackgroundTasks,
-    source_type: Optional[str] = Form(None),
-    url: Optional[str] = Form(None),
-    content: Optional[str] = Form(None),
-    file: Optional[UploadFile] = File(None),
+    source_type: Optional[str] = Form(None, description="One of: `text`, `url`, `pdf`, `docx`"),
+    url: Optional[str] = Form(None, description="Public URL to fetch (required when source_type=url)"),
+    content: Optional[str] = Form(None, description="Plain text content (required when source_type=text)"),
+    file: Optional[UploadFile] = File(None, description="PDF or DOCX file, max 10 MB"),
     current_user: dict = Depends(_current_user_dep),
 ):
+    """
+    Upload a document for AI processing. Returns immediately with a `document_id`.
+
+    Processing (chunking, embedding, summarization) runs in the background.
+    Poll `GET /documents/{document_id}` every 2 seconds until `status` becomes `ready` or `error`.
+
+    **Accepted sources:**
+    - `source_type=text` + `content` — paste raw text
+    - `source_type=url` + `url` — any publicly accessible URL
+    - File upload — PDF or DOCX, max 10 MB
+    """
     await check_upload_limit(current_user["id"])
 
     file_bytes: Optional[bytes] = None
@@ -60,7 +86,6 @@ async def upload_document(
         raise HTTPException(status_code=400, detail="Must provide file, url, or text content")
 
     client = get_client()
-    # Pass .execute (without calling it) as the callable; to_thread will invoke it in a thread pool
     result = await asyncio.to_thread(
         client.table("documents").insert({
             "user_id": current_user["id"],
