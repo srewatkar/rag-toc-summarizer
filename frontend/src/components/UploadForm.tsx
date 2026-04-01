@@ -29,6 +29,7 @@ const tabs: { key: Tab; label: string }[] = [
 export default function UploadForm({ token, onUploaded }: { token: string; onUploaded: (id: string) => void }) {
   const [tab, setTab] = useState<Tab>('file')
   const [content, setContent] = useState('')
+  const [docTitle, setDocTitle] = useState('')
   const [url, setUrl] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [fileError, setFileError] = useState('')
@@ -79,7 +80,7 @@ export default function UploadForm({ token, onUploaded }: { token: string; onUpl
     setLoading(true)
     try {
       let result
-      if (tab === 'text') result = await uploadText(content, token)
+      if (tab === 'text') result = await uploadText(content, token, docTitle || undefined)
       else if (tab === 'url') result = await uploadUrl(url, token)
       else result = await uploadFile(file!, token)
       onUploaded(result.document_id)
@@ -172,17 +173,32 @@ export default function UploadForm({ token, onUploaded }: { token: string; onUpl
         hidden={tab !== 'text'}
       >
         {tab === 'text' && (
-          <div className="space-y-1">
-            <label htmlFor="text-input" className="sr-only">Paste document text</label>
-            <textarea
-              id="text-input"
-              placeholder="Paste your document text here…"
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              rows={8}
-              className="w-full border rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
-            />
-            <p className="text-xs text-gray-500">Minimum ~50 characters · no file size limit for plain text</p>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label htmlFor="doc-title" className="text-xs font-medium text-gray-500 uppercase tracking-wide block">
+                Document name <span className="font-normal normal-case text-gray-400">(optional)</span>
+              </label>
+              <input
+                id="doc-title"
+                type="text"
+                placeholder="Pasted document"
+                value={docTitle}
+                onChange={e => setDocTitle(e.target.value)}
+                className="w-full border rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="text-input" className="sr-only">Paste document text</label>
+              <textarea
+                id="text-input"
+                placeholder="Paste your document text here…"
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                rows={8}
+                className="w-full border rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+              />
+              <p className="text-xs text-gray-500">Minimum ~50 characters · no file size limit for plain text</p>
+            </div>
           </div>
         )}
       </div>

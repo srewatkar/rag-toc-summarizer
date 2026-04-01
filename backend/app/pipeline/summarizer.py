@@ -27,6 +27,17 @@ def _get_client():
         _client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
     return _client
 
+def _strip_fences(text: str) -> str:
+    """Remove markdown code fences Claude occasionally adds despite instructions."""
+    text = text.strip()
+    if text.startswith("```"):
+        # drop opening fence line (```json or ```)
+        text = text.split("\n", 1)[-1]
+    if text.endswith("```"):
+        text = text.rsplit("```", 1)[0]
+    return text.strip()
+
+
 async def summarize_document(chunks: list[str]) -> dict[str, Any]:
     if not chunks:
         raise ValueError("Cannot summarize: no chunks provided")
@@ -42,15 +53,16 @@ async def summarize_document(chunks: list[str]) -> dict[str, Any]:
             max_tokens=2048,
             messages=[{"role": "user", "content": SUMMARIZE_PROMPT.format(text=text)}],
         )
-        result = json.loads(response.content[0].text)
+        raw = _strip_fences(response.content[0].text)
+        result = json.loads(raw)
         required_keys = {"overview", "key_points", "red_flags", "watch_out"}
         missing = required_keys - set(result.keys())
         if missing:
             raise RuntimeError(f"Summarization response missing keys: {missing}")
         return result
     except json.JSONDecodeError as e:
-        raw = response.content[0].text if response and response.content else "<no response>"
-        logger.error("Failed to parse Claude response as JSON. Raw: %s", raw)
+        raw_text = response.content[0].text if response and response.content else "<no response>"
+        logger.error("Failed to parse Claude response as JSON. Raw: %s", raw_text)
         raise RuntimeError(f"Summarization returned invalid JSON: {e}") from e
     except Exception as e:
         logger.error("Summarization failed: %s", e)

@@ -18,7 +18,11 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s))
     return () => subscription.unsubscribe()
   }, [])
-  if (session === undefined) return <div className="flex items-center justify-center min-h-screen">Loading…</div>
+  if (session === undefined) return (
+    <div className="flex items-center justify-center min-h-screen" role="status" aria-label="Loading">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-indigo-600" aria-hidden="true" />
+    </div>
+  )
   if (!session) return <Navigate to="/login" replace />
   return <>{children}</>
 }

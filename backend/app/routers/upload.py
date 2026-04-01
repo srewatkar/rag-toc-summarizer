@@ -52,6 +52,7 @@ async def upload_document(
     source_type: Optional[str] = Form(None, description="One of: `text`, `url`, `pdf`, `docx`"),
     url: Optional[str] = Form(None, description="Public URL to fetch (required when source_type=url)"),
     content: Optional[str] = Form(None, description="Plain text content (required when source_type=text)"),
+    title: Optional[str] = Form(None, description="Optional custom document title"),
     file: Optional[UploadFile] = File(None, description="PDF or DOCX file, max 10 MB"),
     current_user: dict = Depends(_current_user_dep),
 ):
@@ -70,6 +71,7 @@ async def upload_document(
 
     file_bytes: Optional[bytes] = None
 
+    doc_title: str
     if file and file.filename:
         if file.content_type not in ALLOWED_MIME_TYPES:
             raise HTTPException(status_code=400, detail="Only PDF and DOCX files are allowed")
@@ -77,11 +79,11 @@ async def upload_document(
         if len(file_bytes) > MAX_FILE_SIZE:
             raise HTTPException(status_code=413, detail="File exceeds 10MB limit")
         source_type = "docx" if "wordprocessing" in (file.content_type or "") else "pdf"
-        title = file.filename or "Uploaded document"
+        doc_title = title.strip() if title and title.strip() else (file.filename or "Uploaded document")
     elif source_type == "url" and url:
-        title = url
+        doc_title = title.strip() if title and title.strip() else url
     elif source_type == "text" and content:
-        title = "Pasted document"
+        doc_title = title.strip() if title and title.strip() else "Pasted document"
     else:
         raise HTTPException(status_code=400, detail="Must provide file, url, or text content")
 
@@ -89,7 +91,7 @@ async def upload_document(
     result = await asyncio.to_thread(
         client.table("documents").insert({
             "user_id": current_user["id"],
-            "title": title,
+            "title": doc_title,
             "source_type": source_type,
             "source_url": url,
             "status": "processing",

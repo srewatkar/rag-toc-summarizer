@@ -42,6 +42,10 @@ class DocumentDetail(BaseModel):
     messages: List[dict]
 
 
+class TitleUpdate(BaseModel):
+    title: str
+
+
 async def _current_user_dep(
     credentials: HTTPAuthorizationCredentials = Depends(_security),
 ) -> dict:
@@ -121,6 +125,38 @@ async def get_document(document_id: str, current_user: dict = Depends(_current_u
     )).data
 
     return {"document": document, "summary": summary, "messages": messages}
+
+
+@router.patch(
+    "/documents/{document_id}",
+    summary="Update document title",
+    responses={
+        200: {"description": "Updated document"},
+        400: {"description": "Title cannot be empty"},
+        404: {"description": "Document not found or does not belong to this user"},
+    },
+)
+async def update_document(document_id: str, body: TitleUpdate, current_user: dict = Depends(_current_user_dep)):
+    """Update the title of a document."""
+    title = body.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
+    client = get_client()
+    doc_result = await asyncio.to_thread(
+        client.table("documents")
+        .select("id, user_id")
+        .eq("id", document_id)
+        .execute
+    )
+    if not doc_result.data or doc_result.data[0].get("user_id") != current_user["id"]:
+        raise HTTPException(status_code=404, detail="Document not found")
+    result = await asyncio.to_thread(
+        client.table("documents")
+        .update({"title": title})
+        .eq("id", document_id)
+        .execute
+    )
+    return result.data[0]
 
 
 @router.delete(

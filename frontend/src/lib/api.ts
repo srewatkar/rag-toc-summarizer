@@ -27,10 +27,11 @@ async function uploadRequest(form: FormData, token: string) {
   return res.json()
 }
 
-export async function uploadText(content: string, token: string) {
+export async function uploadText(content: string, token: string, title?: string) {
   const form = new FormData()
   form.append('source_type', 'text')
   form.append('content', content)
+  if (title?.trim()) form.append('title', title.trim())
   return uploadRequest(form, token)
 }
 
@@ -71,6 +72,14 @@ export async function deleteAccount(token: string) {
     headers: { Authorization: token },
   })
   if (!res.ok) throw new Error('Failed to delete account')
+}
+
+export async function updateDocumentTitle(id: string, title: string, token: string) {
+  const res = await request(`/documents/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title }),
+  }, token)
+  return res.json()
 }
 
 export async function chat(documentId: string, question: string, token: string) {
