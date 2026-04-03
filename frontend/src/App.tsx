@@ -25,7 +25,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
       <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-indigo-600" aria-hidden="true" />
     </div>
   )
-  if (!session) return <Navigate to="/login" replace />
+  if (!session) return <Navigate to="/" replace />
   return <>{children}</>
 }
 
