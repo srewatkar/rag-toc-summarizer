@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Upload from './pages/Upload'
 import Document from './pages/Document'
+import FAQ from './pages/FAQ'
+import Sitemap from './pages/Sitemap'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(undefined)
@@ -44,6 +46,8 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/sitemap" element={<Sitemap />} />
 
         {/* Authenticated */}
         <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />

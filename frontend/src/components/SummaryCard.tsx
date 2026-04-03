@@ -10,6 +10,7 @@ type Summary = {
 function CollapsibleSection({
   id,
   title,
+  label,
   count,
   defaultOpen = true,
   className,
@@ -18,6 +19,7 @@ function CollapsibleSection({
 }: {
   id: string
   title: React.ReactNode
+  label: string
   count: number
   defaultOpen?: boolean
   className?: string
@@ -26,7 +28,7 @@ function CollapsibleSection({
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className={`rounded-xl border ${className}`} role="region" aria-label={typeof title === 'string' ? title : undefined}>
+    <div className={`rounded-xl border ${className}`} role="region" aria-label={label}>
       <button
         type="button"
         aria-expanded={open}
@@ -66,6 +68,7 @@ export default function SummaryCard({ summary }: { summary: Summary }) {
         <CollapsibleSection
           id="key-points-list"
           title="Key Points"
+          label="Key Points"
           count={summary.key_points.length}
           className="bg-white"
           headerClass="text-gray-700"
@@ -85,6 +88,7 @@ export default function SummaryCard({ summary }: { summary: Summary }) {
         <CollapsibleSection
           id="red-flags-list"
           title={<><span aria-hidden="true">🚩 </span>Red Flags</>}
+          label="Red Flags"
           count={summary.red_flags.length}
           className="bg-red-50 border-red-200"
           headerClass="text-red-700"
@@ -104,6 +108,7 @@ export default function SummaryCard({ summary }: { summary: Summary }) {
         <CollapsibleSection
           id="watch-out-list"
           title={<><span aria-hidden="true">⚠️ </span>Watch Out For</>}
+          label="Watch Out For"
           count={summary.watch_out.length}
           className="bg-yellow-50 border-yellow-200"
           headerClass="text-yellow-700"

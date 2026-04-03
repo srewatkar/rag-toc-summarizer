@@ -71,7 +71,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div>
-            <Link to="/" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 mb-1 block">
+            <Link to="/" className="text-xl font-bold text-indigo-600 hover:text-indigo-700 mb-3 block">
               Clause<span className="text-gray-900">AI</span>
             </Link>
             <p className="text-sm text-gray-500 mb-1" aria-live="polite">{getGreeting(name)}</p>
@@ -124,8 +124,16 @@ export default function Dashboard() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12" role="status" aria-label="Loading">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-200 border-t-indigo-600" aria-hidden="true" />
+          <div role="status" aria-label="Loading documents">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between py-4 px-2 border-b border-gray-100 last:border-0">
+                <div className="flex-1 space-y-2 mr-4">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-2/5" />
+                  <div className="h-3 bg-gray-100 rounded animate-pulse w-1/5" />
+                </div>
+                <div className="h-5 w-14 bg-gray-200 rounded-full animate-pulse" />
+              </div>
+            ))}
           </div>
         ) : (
           <DocumentHistory docs={docs} onDelete={requestDelete} />

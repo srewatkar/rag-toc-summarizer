@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { uploadText, uploadUrl, uploadFile, listDocuments, getDocument, deleteDocument, deleteAccount, chat } from '../../lib/api'
+import { uploadText, uploadUrl, uploadFile, listDocuments, getDocument, deleteDocument, deleteAccount, chat, updateDocumentTitle } from '../../lib/api'
 
 const mockFetch = vi.fn()
 global.fetch = mockFetch
@@ -117,6 +117,29 @@ describe('deleteAccount', () => {
   it('throws on failure', async () => {
     mockFetch.mockResolvedValue({ ok: false })
     await expect(deleteAccount('Bearer token')).rejects.toThrow('Failed to delete account')
+  })
+})
+
+// ── updateDocumentTitle ───────────────────────────────────────────────────────
+
+describe('updateDocumentTitle', () => {
+  it('sends PATCH request with new title', async () => {
+    mockFetch.mockResolvedValue({ ok: true, json: async () => ({ id: 'doc-1', title: 'New Title' }) })
+    const result = await updateDocumentTitle('doc-1', 'New Title', 'Bearer token')
+    expect(result.title).toBe('New Title')
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8000/documents/doc-1',
+      expect.objectContaining({ method: 'PATCH' })
+    )
+  })
+
+  it('throws on failure', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({ detail: 'Title cannot be empty' }),
+    })
+    await expect(updateDocumentTitle('doc-1', '', 'Bearer token')).rejects.toThrow('Title cannot be empty')
   })
 })
 

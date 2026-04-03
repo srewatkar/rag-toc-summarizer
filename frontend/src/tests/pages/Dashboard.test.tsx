@@ -51,27 +51,38 @@ it('shows personalised greeting when user has a name', async () => {
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 
-it('renders upload and profile links', async () => {
+it('renders analyze document and profile links', async () => {
   render(<MemoryRouter><Dashboard /></MemoryRouter>)
   await waitFor(() => screen.getByText('Test T&C'))
-  expect(screen.getByRole('link', { name: /upload/i })).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: /analyze document/i })).toBeInTheDocument()
   expect(screen.getByRole('link', { name: /profile/i })).toBeInTheDocument()
 })
 
-it('signs out and navigates to login', async () => {
+it('signs out and navigates to landing page', async () => {
   const { supabase } = await import('../../lib/supabase')
   render(<MemoryRouter><Dashboard /></MemoryRouter>)
   await waitFor(() => screen.getByText('Test T&C'))
   fireEvent.click(screen.getByRole('button', { name: /sign out/i }))
   await waitFor(() => expect(supabase.auth.signOut).toHaveBeenCalled())
-  expect(mockNavigate).toHaveBeenCalledWith('/login')
+  expect(mockNavigate).toHaveBeenCalledWith('/')
 })
 
 // ── Delete ───────────────────────────────────────────────────────────────────
 
-it('removes document from list after delete', async () => {
+it('removes document from list after delete confirmation', async () => {
+  render(<MemoryRouter><Dashboard /></MemoryRouter>)
+  await waitFor(() => screen.getByText('Test T&C'))
+  // Click delete on the document row — opens confirmation dialog
+  fireEvent.click(screen.getByRole('button', { name: /delete "test t&c"/i }))
+  // Confirm in the dialog
+  fireEvent.click(screen.getByRole('button', { name: /^delete$/i }))
+  await waitFor(() => expect(screen.queryByText('Test T&C')).not.toBeInTheDocument())
+})
+
+it('cancelling delete keeps document in list', async () => {
   render(<MemoryRouter><Dashboard /></MemoryRouter>)
   await waitFor(() => screen.getByText('Test T&C'))
   fireEvent.click(screen.getByRole('button', { name: /delete "test t&c"/i }))
-  await waitFor(() => expect(screen.queryByText('Test T&C')).not.toBeInTheDocument())
+  fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
+  expect(screen.getByText('Test T&C')).toBeInTheDocument()
 })
