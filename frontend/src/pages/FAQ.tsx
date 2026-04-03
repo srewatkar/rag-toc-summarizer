@@ -135,12 +135,14 @@ const FAQS = [
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false)
+  const id = `faq-${q.replace(/\s+/g, '-').toLowerCase().slice(0, 40)}`
   return (
     <div className="border-b border-gray-100 last:border-0">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
+        aria-controls={id}
         className="w-full flex items-center justify-between py-4 text-left gap-4"
       >
         <span className="font-medium text-gray-900 text-sm">{q}</span>
@@ -152,7 +154,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
         </svg>
       </button>
       {open && (
-        <p className="pb-4 text-sm text-gray-500 leading-relaxed">{a}</p>
+        <p id={id} className="pb-4 text-sm text-gray-500 leading-relaxed">{a}</p>
       )}
     </div>
   )
