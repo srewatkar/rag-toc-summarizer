@@ -86,16 +86,10 @@ export default function Landing() {
                   Go to Dashboard
                 </Link>
               ) : (
-                <>
-                  <Link to="/signup"
-                    className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm">
-                    Analyze a document — free
-                  </Link>
-                  <Link to="/login"
-                    className="bg-white text-gray-700 font-semibold px-6 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm">
-                    Sign in
-                  </Link>
-                </>
+                <Link to="/signup"
+                  className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                  Analyze a document — free
+                </Link>
               )}
             </div>
             <div className="flex gap-2 items-center flex-wrap">
