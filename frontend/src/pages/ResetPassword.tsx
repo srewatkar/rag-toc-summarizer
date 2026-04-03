@@ -29,7 +29,7 @@ export default function ResetPassword() {
       setLoading(false)
     } else {
       await supabase.auth.signOut()
-      navigate('/login', { state: { message: 'Password updated — please sign in.' } })
+      navigate('/', { state: { message: 'Password updated — please sign in.' } })
     }
   }
 
