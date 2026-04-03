@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 // All colours match Login/Signup exactly:
 // bg-gray-50 page, bg-white cards, indigo-600 actions, gray text scale
@@ -23,6 +25,12 @@ function RedFlagRow({ text }: { text: string }) {
 }
 
 export default function Landing() {
+  const [loggedIn, setLoggedIn] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session))
+  }, [])
+
   return (
     <div className="min-h-screen bg-gray-50">
 
@@ -33,14 +41,23 @@ export default function Landing() {
             Clause<span className="text-indigo-600">AI</span>
           </span>
           <div className="flex items-center gap-2">
-            <Link to="/login"
-              className="text-sm text-gray-500 hover:text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-              Sign in
-            </Link>
-            <Link to="/signup"
-              className="bg-indigo-600 text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-              Get started
-            </Link>
+            {loggedIn ? (
+              <Link to="/dashboard"
+                className="bg-indigo-600 text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link to="/login"
+                  className="text-sm text-gray-500 hover:text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  Sign in
+                </Link>
+                <Link to="/signup"
+                  className="bg-indigo-600 text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -63,14 +80,23 @@ export default function Landing() {
               Upload any legal document — terms of service, lease, privacy policy — and get a plain-English summary with red flags highlighted in seconds.
             </p>
             <div className="flex gap-3 flex-wrap mb-6">
-              <Link to="/signup"
-                className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm">
-                Analyze a document — free
-              </Link>
-              <Link to="/login"
-                className="bg-white text-gray-700 font-semibold px-6 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm">
-                Sign in
-              </Link>
+              {loggedIn ? (
+                <Link to="/dashboard"
+                  className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link to="/signup"
+                    className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                    Analyze a document — free
+                  </Link>
+                  <Link to="/login"
+                    className="bg-white text-gray-700 font-semibold px-6 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm">
+                    Sign in
+                  </Link>
+                </>
+              )}
             </div>
             <div className="flex gap-2 items-center flex-wrap">
               <span className="text-xs text-gray-400">Works with</span>
@@ -200,15 +226,24 @@ export default function Landing() {
             Read the fine print.<br />We'll find the red flags.
           </h2>
           <p className="text-indigo-200 text-sm mb-8">Free · 5 documents per day · No credit card required</p>
-          <Link to="/signup"
-            className="inline-block bg-white text-indigo-600 font-bold px-8 py-3 rounded-lg hover:bg-indigo-50 transition-colors text-sm">
-            Get started for free
-          </Link>
-          <div className="mt-5">
-            <Link to="/login" className="text-indigo-300 hover:text-white text-sm transition-colors">
-              Already have an account? Sign in
+          {loggedIn ? (
+            <Link to="/dashboard"
+              className="inline-block bg-white text-indigo-600 font-bold px-8 py-3 rounded-lg hover:bg-indigo-50 transition-colors text-sm">
+              Go to Dashboard
             </Link>
-          </div>
+          ) : (
+            <>
+              <Link to="/signup"
+                className="inline-block bg-white text-indigo-600 font-bold px-8 py-3 rounded-lg hover:bg-indigo-50 transition-colors text-sm">
+                Get started for free
+              </Link>
+              <div className="mt-5">
+                <Link to="/login" className="text-indigo-300 hover:text-white text-sm transition-colors">
+                  Already have an account? Sign in
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
