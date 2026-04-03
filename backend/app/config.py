@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     supabase_service_key: str
     anthropic_api_key: str
     openai_api_key: str
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,http://localhost:4173"
 
     class Config:
         env_file = ".env"
