@@ -3,6 +3,32 @@ import { chat } from '../lib/api'
 
 type Message = { role: string; content: string; created_at: string }
 
+function MessageContent({ text }: { text: string }) {
+  const lines = text.trim().split('\n')
+  const isList = lines.some(l => l.trimStart().startsWith('- '))
+
+  if (isList) {
+    return (
+      <ul className="space-y-1 list-none">
+        {lines.map((line, i) => {
+          const clean = line.trimStart()
+          if (clean.startsWith('- ')) {
+            return (
+              <li key={i} className="flex gap-2">
+                <span className="flex-shrink-0 mt-0.5">•</span>
+                <span>{clean.slice(2)}</span>
+              </li>
+            )
+          }
+          return clean ? <li key={i} className="list-none">{clean}</li> : null
+        })}
+      </ul>
+    )
+  }
+
+  return <span>{text}</span>
+}
+
 export default function ChatInterface({
   documentId, token, initialMessages,
 }: { documentId: string; token: string; initialMessages: Message[] }) {
@@ -52,7 +78,7 @@ export default function ChatInterface({
               }`}
               aria-label={msg.role === 'user' ? 'You' : 'Assistant'}
             >
-              {msg.content}
+              {msg.role === 'assistant' ? <MessageContent text={msg.content} /> : msg.content}
             </div>
           </div>
         ))}

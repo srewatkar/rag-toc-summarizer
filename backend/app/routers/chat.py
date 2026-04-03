@@ -51,14 +51,21 @@ class ChatResponse(BaseModel):
     }
 
 
-CHAT_PROMPT = """Answer the user's question using ONLY the document excerpts below.
-If the answer is not in the excerpts, say: "I couldn't find information about that in this document."
-Be concise and direct.
+CHAT_PROMPT = """You are a legal document assistant. Answer the question using ONLY the document excerpts below.
+
+Rules:
+- Be brief and direct — 1 to 3 sentences maximum, or a short bullet list if there are multiple points
+- Start your answer immediately, no preamble like "Based on the document..." or "According to..."
+- Use plain language, no legal jargon
+- Do not use markdown bold (**text**) or other formatting
+- If listing multiple items, use short bullet points starting with -
+- If the answer is not in the excerpts, say exactly: "I couldn't find that in this document."
 
 Document excerpts:
 {context}
 
-Question: {question}"""
+Question: {question}
+Answer:"""
 
 
 @router.post(
