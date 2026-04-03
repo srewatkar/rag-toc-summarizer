@@ -3,6 +3,16 @@ import { chat } from '../lib/api'
 
 type Message = { role: string; content: string; created_at: string }
 
+function renderInline(text: string): React.ReactNode[] {
+  // Replace **bold** with <strong>
+  const parts = text.split(/(\*\*[^*]+\*\*)/)
+  return parts.map((part, i) =>
+    part.startsWith('**') && part.endsWith('**')
+      ? <strong key={i}>{part.slice(2, -2)}</strong>
+      : part
+  )
+}
+
 function MessageContent({ text }: { text: string }) {
   const lines = text.trim().split('\n')
   const isList = lines.some(l => l.trimStart().startsWith('- '))
@@ -16,17 +26,17 @@ function MessageContent({ text }: { text: string }) {
             return (
               <li key={i} className="flex gap-2">
                 <span className="flex-shrink-0 mt-0.5">•</span>
-                <span>{clean.slice(2)}</span>
+                <span>{renderInline(clean.slice(2))}</span>
               </li>
             )
           }
-          return clean ? <li key={i} className="list-none">{clean}</li> : null
+          return clean ? <li key={i} className="list-none">{renderInline(clean)}</li> : null
         })}
       </ul>
     )
   }
 
-  return <span>{text}</span>
+  return <span>{renderInline(text)}</span>
 }
 
 export default function ChatInterface({
