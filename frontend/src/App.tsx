@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
+import { Analytics } from '@vercel/analytics/react'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -32,6 +33,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <>
+      <Analytics />
       {/* Skip link — first tab stop on every page for keyboard users */}
       <a
         href="#main-content"
