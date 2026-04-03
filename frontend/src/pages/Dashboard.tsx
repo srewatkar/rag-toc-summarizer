@@ -60,7 +60,7 @@ export default function Dashboard() {
 
   async function handleSignOut() {
     await supabase.auth.signOut()
-    navigate('/login')
+    navigate('/')
   }
 
   const name = user?.user_metadata?.full_name
@@ -71,6 +71,9 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div>
+            <Link to="/" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 mb-1 block">
+              Clause<span className="text-gray-900">AI</span>
+            </Link>
             <p className="text-sm text-gray-500 mb-1" aria-live="polite">{getGreeting(name)}</p>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Your Documents</h1>
           </div>
